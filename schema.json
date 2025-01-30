@@ -1,299 +1,2141 @@
 {
-  "name": "world",
+  "name": "sakila",
   "tables": [
     {
-      "name": "city",
+      "name": "actor",
       "type": "BASE TABLE",
       "columns": [
         {
-          "name": "ID",
-          "type": "int",
+          "name": "actor_id",
+          "type": "smallint unsigned",
           "nullable": false,
           "extra_def": "auto_increment"
         },
         {
-          "name": "Name",
-          "type": "char(35)",
-          "nullable": false,
-          "default": ""
+          "name": "first_name",
+          "type": "varchar(45)",
+          "nullable": false
         },
         {
-          "name": "CountryCode",
-          "type": "char(3)",
-          "nullable": false,
-          "default": ""
+          "name": "last_name",
+          "type": "varchar(45)",
+          "nullable": false
         },
         {
-          "name": "District",
-          "type": "char(20)",
+          "name": "last_update",
+          "type": "timestamp",
           "nullable": false,
-          "default": ""
-        },
-        {
-          "name": "Population",
-          "type": "int",
-          "nullable": false,
-          "default": "0"
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
         }
       ],
       "indexes": [
         {
-          "name": "CountryCode",
-          "def": "KEY CountryCode (CountryCode) USING BTREE",
-          "table": "city",
+          "name": "idx_actor_last_name",
+          "def": "KEY idx_actor_last_name (last_name) USING BTREE",
+          "table": "actor",
           "columns": [
-            "CountryCode"
+            "last_name"
           ]
         },
         {
           "name": "PRIMARY",
-          "def": "PRIMARY KEY (ID) USING BTREE",
-          "table": "city",
+          "def": "PRIMARY KEY (actor_id) USING BTREE",
+          "table": "actor",
           "columns": [
-            "ID"
+            "actor_id"
           ]
         }
       ],
       "constraints": [
         {
-          "name": "city_ibfk_1",
-          "type": "FOREIGN KEY",
-          "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)",
-          "table": "city",
-          "referenced_table": "country",
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (actor_id)",
+          "table": "actor",
           "columns": [
-            "CountryCode"
+            "actor_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `actor` (\n  `actor_id` smallint unsigned NOT NULL AUTO_INCREMENT,\n  `first_name` varchar(45) NOT NULL,\n  `last_name` varchar(45) NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`actor_id`),\n  KEY `idx_actor_last_name` (`last_name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "actor_info",
+      "type": "VIEW",
+      "comment": "VIEW",
+      "columns": [
+        {
+          "name": "actor_id",
+          "type": "smallint unsigned",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "first_name",
+          "type": "varchar(45)",
+          "nullable": false
+        },
+        {
+          "name": "last_name",
+          "type": "varchar(45)",
+          "nullable": false
+        },
+        {
+          "name": "film_info",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW actor_info AS (select `a`.`actor_id` AS `actor_id`,`a`.`first_name` AS `first_name`,`a`.`last_name` AS `last_name`,group_concat(distinct concat(`c`.`name`,': ',(select group_concat(`f`.`title` order by `f`.`title` ASC separator ', ') from ((`sakila`.`film` `f` join `sakila`.`film_category` `fc` on((`f`.`film_id` = `fc`.`film_id`))) join `sakila`.`film_actor` `fa` on((`f`.`film_id` = `fa`.`film_id`))) where ((`fc`.`category_id` = `c`.`category_id`) and (`fa`.`actor_id` = `a`.`actor_id`)))) order by `c`.`name` ASC separator '; ') AS `film_info` from (((`sakila`.`actor` `a` left join `sakila`.`film_actor` `fa` on((`a`.`actor_id` = `fa`.`actor_id`))) left join `sakila`.`film_category` `fc` on((`fa`.`film_id` = `fc`.`film_id`))) left join `sakila`.`category` `c` on((`fc`.`category_id` = `c`.`category_id`))) group by `a`.`actor_id`,`a`.`first_name`,`a`.`last_name`)",
+      "referenced_tables": [
+        "film",
+        "film_category",
+        "film_actor",
+        "actor",
+        "category"
+      ]
+    },
+    {
+      "name": "address",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "address_id",
+          "type": "smallint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "address",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "address2",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "district",
+          "type": "varchar(20)",
+          "nullable": false
+        },
+        {
+          "name": "city_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "postal_code",
+          "type": "varchar(10)",
+          "nullable": true
+        },
+        {
+          "name": "phone",
+          "type": "varchar(20)",
+          "nullable": false
+        },
+        {
+          "name": "location",
+          "type": "geometry",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_city_id",
+          "def": "KEY idx_fk_city_id (city_id) USING BTREE",
+          "table": "address",
+          "columns": [
+            "city_id"
+          ]
+        },
+        {
+          "name": "idx_location",
+          "def": "KEY idx_location (location) USING SPATIAL",
+          "table": "address",
+          "columns": [
+            "location"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (address_id) USING BTREE",
+          "table": "address",
+          "columns": [
+            "address_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_address_city",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (city_id) REFERENCES city (city_id)",
+          "table": "address",
+          "referenced_table": "city",
+          "columns": [
+            "city_id"
           ],
           "referenced_columns": [
-            "Code"
+            "city_id"
           ]
         },
         {
           "name": "PRIMARY",
           "type": "PRIMARY KEY",
-          "def": "PRIMARY KEY (ID)",
-          "table": "city",
+          "def": "PRIMARY KEY (address_id)",
+          "table": "address",
           "columns": [
-            "ID"
+            "address_id"
           ]
         }
       ],
-      "def": "CREATE TABLE `city` (\n  `ID` int NOT NULL AUTO_INCREMENT,\n  `Name` char(35) NOT NULL DEFAULT '',\n  `CountryCode` char(3) NOT NULL DEFAULT '',\n  `District` char(20) NOT NULL DEFAULT '',\n  `Population` int NOT NULL DEFAULT '0',\n  PRIMARY KEY (`ID`),\n  KEY `CountryCode` (`CountryCode`),\n  CONSTRAINT `city_ibfk_1` FOREIGN KEY (`CountryCode`) REFERENCES `country` (`Code`)\n) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+      "def": "CREATE TABLE `address` (\n  `address_id` smallint unsigned NOT NULL AUTO_INCREMENT,\n  `address` varchar(50) NOT NULL,\n  `address2` varchar(50) DEFAULT NULL,\n  `district` varchar(20) NOT NULL,\n  `city_id` smallint unsigned NOT NULL,\n  `postal_code` varchar(10) DEFAULT NULL,\n  `phone` varchar(20) NOT NULL,\n  `location` geometry NOT NULL /*!80003 SRID 0 */,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`address_id`),\n  KEY `idx_fk_city_id` (`city_id`),\n  SPATIAL KEY `idx_location` (`location`),\n  CONSTRAINT `fk_address_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`city_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "category",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "category_id",
+          "type": "tinyint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (category_id) USING BTREE",
+          "table": "category",
+          "columns": [
+            "category_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (category_id)",
+          "table": "category",
+          "columns": [
+            "category_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `category` (\n  `category_id` tinyint unsigned NOT NULL AUTO_INCREMENT,\n  `name` varchar(25) NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`category_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "city",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "city_id",
+          "type": "smallint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "city",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "country_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_country_id",
+          "def": "KEY idx_fk_country_id (country_id) USING BTREE",
+          "table": "city",
+          "columns": [
+            "country_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (city_id) USING BTREE",
+          "table": "city",
+          "columns": [
+            "city_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_city_country",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (country_id) REFERENCES country (country_id)",
+          "table": "city",
+          "referenced_table": "country",
+          "columns": [
+            "country_id"
+          ],
+          "referenced_columns": [
+            "country_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (city_id)",
+          "table": "city",
+          "columns": [
+            "city_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `city` (\n  `city_id` smallint unsigned NOT NULL AUTO_INCREMENT,\n  `city` varchar(50) NOT NULL,\n  `country_id` smallint unsigned NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`city_id`),\n  KEY `idx_fk_country_id` (`country_id`),\n  CONSTRAINT `fk_city_country` FOREIGN KEY (`country_id`) REFERENCES `country` (`country_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
     },
     {
       "name": "country",
       "type": "BASE TABLE",
       "columns": [
         {
-          "name": "Code",
-          "type": "char(3)",
+          "name": "country_id",
+          "type": "smallint unsigned",
           "nullable": false,
-          "default": ""
+          "extra_def": "auto_increment"
         },
         {
-          "name": "Name",
-          "type": "char(52)",
-          "nullable": false,
-          "default": ""
+          "name": "country",
+          "type": "varchar(50)",
+          "nullable": false
         },
         {
-          "name": "Continent",
-          "type": "enum('Asia','Europe','North America','Africa','Oceania','Antarctica','South America')",
+          "name": "last_update",
+          "type": "timestamp",
           "nullable": false,
-          "default": "Asia"
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (country_id) USING BTREE",
+          "table": "country",
+          "columns": [
+            "country_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (country_id)",
+          "table": "country",
+          "columns": [
+            "country_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `country` (\n  `country_id` smallint unsigned NOT NULL AUTO_INCREMENT,\n  `country` varchar(50) NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`country_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "customer",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "customer_id",
+          "type": "smallint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
         },
         {
-          "name": "Region",
-          "type": "char(26)",
-          "nullable": false,
-          "default": ""
+          "name": "store_id",
+          "type": "tinyint unsigned",
+          "nullable": false
         },
         {
-          "name": "SurfaceArea",
-          "type": "decimal(10,2)",
-          "nullable": false,
-          "default": "0.00"
+          "name": "first_name",
+          "type": "varchar(45)",
+          "nullable": false
         },
         {
-          "name": "IndepYear",
-          "type": "smallint",
+          "name": "last_name",
+          "type": "varchar(45)",
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type": "varchar(50)",
           "nullable": true
         },
         {
-          "name": "Population",
-          "type": "int",
+          "name": "address_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "active",
+          "type": "tinyint(1)",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "create_date",
+          "type": "datetime",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_address_id",
+          "def": "KEY idx_fk_address_id (address_id) USING BTREE",
+          "table": "customer",
+          "columns": [
+            "address_id"
+          ]
+        },
+        {
+          "name": "idx_fk_store_id",
+          "def": "KEY idx_fk_store_id (store_id) USING BTREE",
+          "table": "customer",
+          "columns": [
+            "store_id"
+          ]
+        },
+        {
+          "name": "idx_last_name",
+          "def": "KEY idx_last_name (last_name) USING BTREE",
+          "table": "customer",
+          "columns": [
+            "last_name"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (customer_id) USING BTREE",
+          "table": "customer",
+          "columns": [
+            "customer_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_customer_address",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (address_id) REFERENCES address (address_id)",
+          "table": "customer",
+          "referenced_table": "address",
+          "columns": [
+            "address_id"
+          ],
+          "referenced_columns": [
+            "address_id"
+          ]
+        },
+        {
+          "name": "fk_customer_store",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (store_id) REFERENCES store (store_id)",
+          "table": "customer",
+          "referenced_table": "store",
+          "columns": [
+            "store_id"
+          ],
+          "referenced_columns": [
+            "store_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (customer_id)",
+          "table": "customer",
+          "columns": [
+            "customer_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `customer` (\n  `customer_id` smallint unsigned NOT NULL AUTO_INCREMENT,\n  `store_id` tinyint unsigned NOT NULL,\n  `first_name` varchar(45) NOT NULL,\n  `last_name` varchar(45) NOT NULL,\n  `email` varchar(50) DEFAULT NULL,\n  `address_id` smallint unsigned NOT NULL,\n  `active` tinyint(1) NOT NULL DEFAULT '1',\n  `create_date` datetime NOT NULL,\n  `last_update` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`customer_id`),\n  KEY `idx_fk_store_id` (`store_id`),\n  KEY `idx_fk_address_id` (`address_id`),\n  KEY `idx_last_name` (`last_name`),\n  CONSTRAINT `fk_customer_address` FOREIGN KEY (`address_id`) REFERENCES `address` (`address_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_customer_store` FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "customer_list",
+      "type": "VIEW",
+      "comment": "VIEW",
+      "columns": [
+        {
+          "name": "ID",
+          "type": "smallint unsigned",
           "nullable": false,
           "default": "0"
         },
         {
-          "name": "LifeExpectancy",
-          "type": "decimal(3,1)",
+          "name": "name",
+          "type": "varchar(91)",
           "nullable": true
         },
         {
-          "name": "GNP",
-          "type": "decimal(10,2)",
+          "name": "address",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "zip code",
+          "type": "varchar(10)",
           "nullable": true
         },
         {
-          "name": "GNPOld",
-          "type": "decimal(10,2)",
-          "nullable": true
+          "name": "phone",
+          "type": "varchar(20)",
+          "nullable": false
         },
         {
-          "name": "LocalName",
-          "type": "char(45)",
+          "name": "city",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "country",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "notes",
+          "type": "varchar(6)",
           "nullable": false,
           "default": ""
         },
         {
-          "name": "GovernmentForm",
-          "type": "char(45)",
+          "name": "SID",
+          "type": "tinyint unsigned",
+          "nullable": false
+        }
+      ],
+      "def": "CREATE VIEW customer_list AS (select `cu`.`customer_id` AS `ID`,concat(`cu`.`first_name`,' ',`cu`.`last_name`) AS `name`,`a`.`address` AS `address`,`a`.`postal_code` AS `zip code`,`a`.`phone` AS `phone`,`sakila`.`city`.`city` AS `city`,`sakila`.`country`.`country` AS `country`,if(`cu`.`active`,'active','') AS `notes`,`cu`.`store_id` AS `SID` from (((`sakila`.`customer` `cu` join `sakila`.`address` `a` on((`cu`.`address_id` = `a`.`address_id`))) join `sakila`.`city` on((`a`.`city_id` = `sakila`.`city`.`city_id`))) join `sakila`.`country` on((`sakila`.`city`.`country_id` = `sakila`.`country`.`country_id`))))",
+      "referenced_tables": [
+        "customer",
+        "address",
+        "city",
+        "country"
+      ]
+    },
+    {
+      "name": "film",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "film_id",
+          "type": "smallint unsigned",
           "nullable": false,
-          "default": ""
+          "extra_def": "auto_increment"
         },
         {
-          "name": "HeadOfState",
-          "type": "char(60)",
+          "name": "title",
+          "type": "varchar(128)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "text",
           "nullable": true
         },
         {
-          "name": "Capital",
+          "name": "release_year",
+          "type": "year",
+          "nullable": true
+        },
+        {
+          "name": "language_id",
+          "type": "tinyint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "original_language_id",
+          "type": "tinyint unsigned",
+          "nullable": true
+        },
+        {
+          "name": "rental_duration",
+          "type": "tinyint unsigned",
+          "nullable": false,
+          "default": "3"
+        },
+        {
+          "name": "rental_rate",
+          "type": "decimal(4,2)",
+          "nullable": false,
+          "default": "4.99"
+        },
+        {
+          "name": "length",
+          "type": "smallint unsigned",
+          "nullable": true
+        },
+        {
+          "name": "replacement_cost",
+          "type": "decimal(5,2)",
+          "nullable": false,
+          "default": "19.99"
+        },
+        {
+          "name": "rating",
+          "type": "enum('G','PG','PG-13','R','NC-17')",
+          "nullable": true,
+          "default": "G"
+        },
+        {
+          "name": "special_features",
+          "type": "set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')",
+          "nullable": true
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_language_id",
+          "def": "KEY idx_fk_language_id (language_id) USING BTREE",
+          "table": "film",
+          "columns": [
+            "language_id"
+          ]
+        },
+        {
+          "name": "idx_fk_original_language_id",
+          "def": "KEY idx_fk_original_language_id (original_language_id) USING BTREE",
+          "table": "film",
+          "columns": [
+            "original_language_id"
+          ]
+        },
+        {
+          "name": "idx_title",
+          "def": "KEY idx_title (title) USING BTREE",
+          "table": "film",
+          "columns": [
+            "title"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (film_id) USING BTREE",
+          "table": "film",
+          "columns": [
+            "film_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_film_language",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (language_id) REFERENCES language (language_id)",
+          "table": "film",
+          "referenced_table": "language",
+          "columns": [
+            "language_id"
+          ],
+          "referenced_columns": [
+            "language_id"
+          ]
+        },
+        {
+          "name": "fk_film_language_original",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (original_language_id) REFERENCES language (language_id)",
+          "table": "film",
+          "referenced_table": "language",
+          "columns": [
+            "original_language_id"
+          ],
+          "referenced_columns": [
+            "language_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (film_id)",
+          "table": "film",
+          "columns": [
+            "film_id"
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "name": "ins_film",
+          "def": "CREATE TRIGGER ins_film AFTER INSERT ON film\nFOR EACH ROW\nBEGIN\n    INSERT INTO film_text (film_id, title, description)\n        VALUES (new.film_id, new.title, new.description);\n  END"
+        },
+        {
+          "name": "upd_film",
+          "def": "CREATE TRIGGER upd_film AFTER UPDATE ON film\nFOR EACH ROW\nBEGIN\n    IF (old.title != new.title) OR (old.description != new.description) OR (old.film_id != new.film_id)\n    THEN\n        UPDATE film_text\n            SET title=new.title,\n                description=new.description,\n                film_id=new.film_id\n        WHERE film_id=old.film_id;\n    END IF;\n  END"
+        },
+        {
+          "name": "del_film",
+          "def": "CREATE TRIGGER del_film AFTER DELETE ON film\nFOR EACH ROW\nBEGIN\n    DELETE FROM film_text WHERE film_id = old.film_id;\n  END"
+        }
+      ],
+      "def": "CREATE TABLE `film` (\n  `film_id` smallint unsigned NOT NULL AUTO_INCREMENT,\n  `title` varchar(128) NOT NULL,\n  `description` text,\n  `release_year` year DEFAULT NULL,\n  `language_id` tinyint unsigned NOT NULL,\n  `original_language_id` tinyint unsigned DEFAULT NULL,\n  `rental_duration` tinyint unsigned NOT NULL DEFAULT '3',\n  `rental_rate` decimal(4,2) NOT NULL DEFAULT '4.99',\n  `length` smallint unsigned DEFAULT NULL,\n  `replacement_cost` decimal(5,2) NOT NULL DEFAULT '19.99',\n  `rating` enum('G','PG','PG-13','R','NC-17') DEFAULT 'G',\n  `special_features` set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes') DEFAULT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`film_id`),\n  KEY `idx_title` (`title`),\n  KEY `idx_fk_language_id` (`language_id`),\n  KEY `idx_fk_original_language_id` (`original_language_id`),\n  CONSTRAINT `fk_film_language` FOREIGN KEY (`language_id`) REFERENCES `language` (`language_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_film_language_original` FOREIGN KEY (`original_language_id`) REFERENCES `language` (`language_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "film_actor",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "actor_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "film_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_film_id",
+          "def": "KEY idx_fk_film_id (film_id) USING BTREE",
+          "table": "film_actor",
+          "columns": [
+            "film_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (actor_id, film_id) USING BTREE",
+          "table": "film_actor",
+          "columns": [
+            "actor_id",
+            "film_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_film_actor_actor",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (actor_id) REFERENCES actor (actor_id)",
+          "table": "film_actor",
+          "referenced_table": "actor",
+          "columns": [
+            "actor_id"
+          ],
+          "referenced_columns": [
+            "actor_id"
+          ]
+        },
+        {
+          "name": "fk_film_actor_film",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (film_id) REFERENCES film (film_id)",
+          "table": "film_actor",
+          "referenced_table": "film",
+          "columns": [
+            "film_id"
+          ],
+          "referenced_columns": [
+            "film_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (actor_id, film_id)",
+          "table": "film_actor",
+          "columns": [
+            "actor_id",
+            "film_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `film_actor` (\n  `actor_id` smallint unsigned NOT NULL,\n  `film_id` smallint unsigned NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`actor_id`,`film_id`),\n  KEY `idx_fk_film_id` (`film_id`),\n  CONSTRAINT `fk_film_actor_actor` FOREIGN KEY (`actor_id`) REFERENCES `actor` (`actor_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_film_actor_film` FOREIGN KEY (`film_id`) REFERENCES `film` (`film_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "film_category",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "film_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "category_id",
+          "type": "tinyint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "fk_film_category_category",
+          "def": "KEY fk_film_category_category (category_id) USING BTREE",
+          "table": "film_category",
+          "columns": [
+            "category_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (film_id, category_id) USING BTREE",
+          "table": "film_category",
+          "columns": [
+            "film_id",
+            "category_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_film_category_category",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (category_id) REFERENCES category (category_id)",
+          "table": "film_category",
+          "referenced_table": "category",
+          "columns": [
+            "category_id"
+          ],
+          "referenced_columns": [
+            "category_id"
+          ]
+        },
+        {
+          "name": "fk_film_category_film",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (film_id) REFERENCES film (film_id)",
+          "table": "film_category",
+          "referenced_table": "film",
+          "columns": [
+            "film_id"
+          ],
+          "referenced_columns": [
+            "film_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (film_id, category_id)",
+          "table": "film_category",
+          "columns": [
+            "film_id",
+            "category_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `film_category` (\n  `film_id` smallint unsigned NOT NULL,\n  `category_id` tinyint unsigned NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`film_id`,`category_id`),\n  KEY `fk_film_category_category` (`category_id`),\n  CONSTRAINT `fk_film_category_category` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_film_category_film` FOREIGN KEY (`film_id`) REFERENCES `film` (`film_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "film_list",
+      "type": "VIEW",
+      "comment": "VIEW",
+      "columns": [
+        {
+          "name": "FID",
+          "type": "smallint unsigned",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "title",
+          "type": "varchar(128)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "category",
+          "type": "varchar(25)",
+          "nullable": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(4,2)",
+          "nullable": false,
+          "default": "4.99"
+        },
+        {
+          "name": "length",
+          "type": "smallint unsigned",
+          "nullable": true
+        },
+        {
+          "name": "rating",
+          "type": "enum('G','PG','PG-13','R','NC-17')",
+          "nullable": true,
+          "default": "G"
+        },
+        {
+          "name": "actors",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW film_list AS (select `sakila`.`film`.`film_id` AS `FID`,`sakila`.`film`.`title` AS `title`,`sakila`.`film`.`description` AS `description`,`sakila`.`category`.`name` AS `category`,`sakila`.`film`.`rental_rate` AS `price`,`sakila`.`film`.`length` AS `length`,`sakila`.`film`.`rating` AS `rating`,group_concat(concat(`sakila`.`actor`.`first_name`,' ',`sakila`.`actor`.`last_name`) separator ', ') AS `actors` from ((((`sakila`.`film` left join `sakila`.`film_category` on((`sakila`.`film_category`.`film_id` = `sakila`.`film`.`film_id`))) left join `sakila`.`category` on((`sakila`.`category`.`category_id` = `sakila`.`film_category`.`category_id`))) left join `sakila`.`film_actor` on((`sakila`.`film`.`film_id` = `sakila`.`film_actor`.`film_id`))) left join `sakila`.`actor` on((`sakila`.`film_actor`.`actor_id` = `sakila`.`actor`.`actor_id`))) group by `sakila`.`film`.`film_id`,`sakila`.`category`.`name`)",
+      "referenced_tables": [
+        "film",
+        "film_category",
+        "category",
+        "film_actor",
+        "actor"
+      ]
+    },
+    {
+      "name": "film_text",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "film_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "varchar(255)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_title_description",
+          "def": "KEY idx_title_description (title, description) USING FULLTEXT",
+          "table": "film_text",
+          "columns": [
+            "title",
+            "description"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (film_id) USING BTREE",
+          "table": "film_text",
+          "columns": [
+            "film_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (film_id)",
+          "table": "film_text",
+          "columns": [
+            "film_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `film_text` (\n  `film_id` smallint unsigned NOT NULL,\n  `title` varchar(255) NOT NULL,\n  `description` text,\n  PRIMARY KEY (`film_id`),\n  FULLTEXT KEY `idx_title_description` (`title`,`description`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "inventory",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "inventory_id",
+          "type": "mediumint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "film_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "store_id",
+          "type": "tinyint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_film_id",
+          "def": "KEY idx_fk_film_id (film_id) USING BTREE",
+          "table": "inventory",
+          "columns": [
+            "film_id"
+          ]
+        },
+        {
+          "name": "idx_store_id_film_id",
+          "def": "KEY idx_store_id_film_id (store_id, film_id) USING BTREE",
+          "table": "inventory",
+          "columns": [
+            "store_id",
+            "film_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (inventory_id) USING BTREE",
+          "table": "inventory",
+          "columns": [
+            "inventory_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_inventory_film",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (film_id) REFERENCES film (film_id)",
+          "table": "inventory",
+          "referenced_table": "film",
+          "columns": [
+            "film_id"
+          ],
+          "referenced_columns": [
+            "film_id"
+          ]
+        },
+        {
+          "name": "fk_inventory_store",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (store_id) REFERENCES store (store_id)",
+          "table": "inventory",
+          "referenced_table": "store",
+          "columns": [
+            "store_id"
+          ],
+          "referenced_columns": [
+            "store_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (inventory_id)",
+          "table": "inventory",
+          "columns": [
+            "inventory_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `inventory` (\n  `inventory_id` mediumint unsigned NOT NULL AUTO_INCREMENT,\n  `film_id` smallint unsigned NOT NULL,\n  `store_id` tinyint unsigned NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`inventory_id`),\n  KEY `idx_fk_film_id` (`film_id`),\n  KEY `idx_store_id_film_id` (`store_id`,`film_id`),\n  CONSTRAINT `fk_inventory_film` FOREIGN KEY (`film_id`) REFERENCES `film` (`film_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_inventory_store` FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "language",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "language_id",
+          "type": "tinyint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "name",
+          "type": "char(20)",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (language_id) USING BTREE",
+          "table": "language",
+          "columns": [
+            "language_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (language_id)",
+          "table": "language",
+          "columns": [
+            "language_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `language` (\n  `language_id` tinyint unsigned NOT NULL AUTO_INCREMENT,\n  `name` char(20) NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`language_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "nicer_but_slower_film_list",
+      "type": "VIEW",
+      "comment": "VIEW",
+      "columns": [
+        {
+          "name": "FID",
+          "type": "smallint unsigned",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "title",
+          "type": "varchar(128)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "category",
+          "type": "varchar(25)",
+          "nullable": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(4,2)",
+          "nullable": false,
+          "default": "4.99"
+        },
+        {
+          "name": "length",
+          "type": "smallint unsigned",
+          "nullable": true
+        },
+        {
+          "name": "rating",
+          "type": "enum('G','PG','PG-13','R','NC-17')",
+          "nullable": true,
+          "default": "G"
+        },
+        {
+          "name": "actors",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW nicer_but_slower_film_list AS (select `sakila`.`film`.`film_id` AS `FID`,`sakila`.`film`.`title` AS `title`,`sakila`.`film`.`description` AS `description`,`sakila`.`category`.`name` AS `category`,`sakila`.`film`.`rental_rate` AS `price`,`sakila`.`film`.`length` AS `length`,`sakila`.`film`.`rating` AS `rating`,group_concat(concat(concat(upper(substr(`sakila`.`actor`.`first_name`,1,1)),lower(substr(`sakila`.`actor`.`first_name`,2,length(`sakila`.`actor`.`first_name`))),' ',concat(upper(substr(`sakila`.`actor`.`last_name`,1,1)),lower(substr(`sakila`.`actor`.`last_name`,2,length(`sakila`.`actor`.`last_name`)))))) separator ', ') AS `actors` from ((((`sakila`.`film` left join `sakila`.`film_category` on((`sakila`.`film_category`.`film_id` = `sakila`.`film`.`film_id`))) left join `sakila`.`category` on((`sakila`.`category`.`category_id` = `sakila`.`film_category`.`category_id`))) left join `sakila`.`film_actor` on((`sakila`.`film`.`film_id` = `sakila`.`film_actor`.`film_id`))) left join `sakila`.`actor` on((`sakila`.`film_actor`.`actor_id` = `sakila`.`actor`.`actor_id`))) group by `sakila`.`film`.`film_id`,`sakila`.`category`.`name`)",
+      "referenced_tables": [
+        "film",
+        "film_category",
+        "category",
+        "film_actor",
+        "actor"
+      ]
+    },
+    {
+      "name": "payment",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "payment_id",
+          "type": "smallint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "customer_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "staff_id",
+          "type": "tinyint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "rental_id",
           "type": "int",
           "nullable": true
         },
         {
-          "name": "Code2",
-          "type": "char(2)",
-          "nullable": false,
-          "default": ""
+          "name": "amount",
+          "type": "decimal(5,2)",
+          "nullable": false
+        },
+        {
+          "name": "payment_date",
+          "type": "datetime",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
         }
       ],
       "indexes": [
         {
-          "name": "PRIMARY",
-          "def": "PRIMARY KEY (Code) USING BTREE",
-          "table": "country",
+          "name": "fk_payment_rental",
+          "def": "KEY fk_payment_rental (rental_id) USING BTREE",
+          "table": "payment",
           "columns": [
-            "Code"
+            "rental_id"
+          ]
+        },
+        {
+          "name": "idx_fk_customer_id",
+          "def": "KEY idx_fk_customer_id (customer_id) USING BTREE",
+          "table": "payment",
+          "columns": [
+            "customer_id"
+          ]
+        },
+        {
+          "name": "idx_fk_staff_id",
+          "def": "KEY idx_fk_staff_id (staff_id) USING BTREE",
+          "table": "payment",
+          "columns": [
+            "staff_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (payment_id) USING BTREE",
+          "table": "payment",
+          "columns": [
+            "payment_id"
           ]
         }
       ],
       "constraints": [
         {
+          "name": "fk_payment_customer",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (customer_id) REFERENCES customer (customer_id)",
+          "table": "payment",
+          "referenced_table": "customer",
+          "columns": [
+            "customer_id"
+          ],
+          "referenced_columns": [
+            "customer_id"
+          ]
+        },
+        {
+          "name": "fk_payment_rental",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (rental_id) REFERENCES rental (rental_id)",
+          "table": "payment",
+          "referenced_table": "rental",
+          "columns": [
+            "rental_id"
+          ],
+          "referenced_columns": [
+            "rental_id"
+          ]
+        },
+        {
+          "name": "fk_payment_staff",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (staff_id) REFERENCES staff (staff_id)",
+          "table": "payment",
+          "referenced_table": "staff",
+          "columns": [
+            "staff_id"
+          ],
+          "referenced_columns": [
+            "staff_id"
+          ]
+        },
+        {
           "name": "PRIMARY",
           "type": "PRIMARY KEY",
-          "def": "PRIMARY KEY (Code)",
-          "table": "country",
+          "def": "PRIMARY KEY (payment_id)",
+          "table": "payment",
           "columns": [
-            "Code"
+            "payment_id"
           ]
         }
       ],
-      "def": "CREATE TABLE `country` (\n  `Code` char(3) NOT NULL DEFAULT '',\n  `Name` char(52) NOT NULL DEFAULT '',\n  `Continent` enum('Asia','Europe','North America','Africa','Oceania','Antarctica','South America') NOT NULL DEFAULT 'Asia',\n  `Region` char(26) NOT NULL DEFAULT '',\n  `SurfaceArea` decimal(10,2) NOT NULL DEFAULT '0.00',\n  `IndepYear` smallint DEFAULT NULL,\n  `Population` int NOT NULL DEFAULT '0',\n  `LifeExpectancy` decimal(3,1) DEFAULT NULL,\n  `GNP` decimal(10,2) DEFAULT NULL,\n  `GNPOld` decimal(10,2) DEFAULT NULL,\n  `LocalName` char(45) NOT NULL DEFAULT '',\n  `GovernmentForm` char(45) NOT NULL DEFAULT '',\n  `HeadOfState` char(60) DEFAULT NULL,\n  `Capital` int DEFAULT NULL,\n  `Code2` char(2) NOT NULL DEFAULT '',\n  PRIMARY KEY (`Code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+      "def": "CREATE TABLE `payment` (\n  `payment_id` smallint unsigned NOT NULL AUTO_INCREMENT,\n  `customer_id` smallint unsigned NOT NULL,\n  `staff_id` tinyint unsigned NOT NULL,\n  `rental_id` int DEFAULT NULL,\n  `amount` decimal(5,2) NOT NULL,\n  `payment_date` datetime NOT NULL,\n  `last_update` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`payment_id`),\n  KEY `idx_fk_staff_id` (`staff_id`),\n  KEY `idx_fk_customer_id` (`customer_id`),\n  KEY `fk_payment_rental` (`rental_id`),\n  CONSTRAINT `fk_payment_customer` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_payment_rental` FOREIGN KEY (`rental_id`) REFERENCES `rental` (`rental_id`) ON DELETE SET NULL ON UPDATE CASCADE,\n  CONSTRAINT `fk_payment_staff` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
     },
     {
-      "name": "countrylanguage",
+      "name": "rental",
       "type": "BASE TABLE",
       "columns": [
         {
-          "name": "CountryCode",
-          "type": "char(3)",
+          "name": "rental_id",
+          "type": "int",
           "nullable": false,
-          "default": ""
+          "extra_def": "auto_increment"
         },
         {
-          "name": "Language",
-          "type": "char(30)",
-          "nullable": false,
-          "default": ""
+          "name": "rental_date",
+          "type": "datetime",
+          "nullable": false
         },
         {
-          "name": "IsOfficial",
-          "type": "enum('T','F')",
-          "nullable": false,
-          "default": "F"
+          "name": "inventory_id",
+          "type": "mediumint unsigned",
+          "nullable": false
         },
         {
-          "name": "Percentage",
-          "type": "decimal(4,1)",
+          "name": "customer_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "return_date",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "staff_id",
+          "type": "tinyint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
           "nullable": false,
-          "default": "0.0"
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
         }
       ],
       "indexes": [
         {
-          "name": "CountryCode",
-          "def": "KEY CountryCode (CountryCode) USING BTREE",
-          "table": "countrylanguage",
+          "name": "idx_fk_customer_id",
+          "def": "KEY idx_fk_customer_id (customer_id) USING BTREE",
+          "table": "rental",
           "columns": [
-            "CountryCode"
+            "customer_id"
+          ]
+        },
+        {
+          "name": "idx_fk_inventory_id",
+          "def": "KEY idx_fk_inventory_id (inventory_id) USING BTREE",
+          "table": "rental",
+          "columns": [
+            "inventory_id"
+          ]
+        },
+        {
+          "name": "idx_fk_staff_id",
+          "def": "KEY idx_fk_staff_id (staff_id) USING BTREE",
+          "table": "rental",
+          "columns": [
+            "staff_id"
           ]
         },
         {
           "name": "PRIMARY",
-          "def": "PRIMARY KEY (CountryCode, Language) USING BTREE",
-          "table": "countrylanguage",
+          "def": "PRIMARY KEY (rental_id) USING BTREE",
+          "table": "rental",
           "columns": [
-            "CountryCode",
-            "Language"
+            "rental_id"
+          ]
+        },
+        {
+          "name": "rental_date",
+          "def": "UNIQUE KEY rental_date (rental_date, inventory_id, customer_id) USING BTREE",
+          "table": "rental",
+          "columns": [
+            "rental_date",
+            "inventory_id",
+            "customer_id"
           ]
         }
       ],
       "constraints": [
         {
-          "name": "countryLanguage_ibfk_1",
+          "name": "fk_rental_customer",
           "type": "FOREIGN KEY",
-          "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)",
-          "table": "countrylanguage",
-          "referenced_table": "country",
+          "def": "FOREIGN KEY (customer_id) REFERENCES customer (customer_id)",
+          "table": "rental",
+          "referenced_table": "customer",
           "columns": [
-            "CountryCode"
+            "customer_id"
           ],
           "referenced_columns": [
-            "Code"
+            "customer_id"
+          ]
+        },
+        {
+          "name": "fk_rental_inventory",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (inventory_id) REFERENCES inventory (inventory_id)",
+          "table": "rental",
+          "referenced_table": "inventory",
+          "columns": [
+            "inventory_id"
+          ],
+          "referenced_columns": [
+            "inventory_id"
+          ]
+        },
+        {
+          "name": "fk_rental_staff",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (staff_id) REFERENCES staff (staff_id)",
+          "table": "rental",
+          "referenced_table": "staff",
+          "columns": [
+            "staff_id"
+          ],
+          "referenced_columns": [
+            "staff_id"
           ]
         },
         {
           "name": "PRIMARY",
           "type": "PRIMARY KEY",
-          "def": "PRIMARY KEY (CountryCode, Language)",
-          "table": "countrylanguage",
+          "def": "PRIMARY KEY (rental_id)",
+          "table": "rental",
           "columns": [
-            "CountryCode",
-            "Language"
+            "rental_id"
+          ]
+        },
+        {
+          "name": "rental_date",
+          "type": "UNIQUE",
+          "def": "UNIQUE KEY rental_date (rental_date, inventory_id, customer_id)",
+          "table": "rental",
+          "columns": [
+            "rental_date",
+            "inventory_id",
+            "customer_id"
           ]
         }
       ],
-      "def": "CREATE TABLE `countrylanguage` (\n  `CountryCode` char(3) NOT NULL DEFAULT '',\n  `Language` char(30) NOT NULL DEFAULT '',\n  `IsOfficial` enum('T','F') NOT NULL DEFAULT 'F',\n  `Percentage` decimal(4,1) NOT NULL DEFAULT '0.0',\n  PRIMARY KEY (`CountryCode`,`Language`),\n  KEY `CountryCode` (`CountryCode`),\n  CONSTRAINT `countryLanguage_ibfk_1` FOREIGN KEY (`CountryCode`) REFERENCES `country` (`Code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+      "def": "CREATE TABLE `rental` (\n  `rental_id` int NOT NULL AUTO_INCREMENT,\n  `rental_date` datetime NOT NULL,\n  `inventory_id` mediumint unsigned NOT NULL,\n  `customer_id` smallint unsigned NOT NULL,\n  `return_date` datetime DEFAULT NULL,\n  `staff_id` tinyint unsigned NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`rental_id`),\n  UNIQUE KEY `rental_date` (`rental_date`,`inventory_id`,`customer_id`),\n  KEY `idx_fk_inventory_id` (`inventory_id`),\n  KEY `idx_fk_customer_id` (`customer_id`),\n  KEY `idx_fk_staff_id` (`staff_id`),\n  CONSTRAINT `fk_rental_customer` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_rental_inventory` FOREIGN KEY (`inventory_id`) REFERENCES `inventory` (`inventory_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_rental_staff` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "sales_by_film_category",
+      "type": "VIEW",
+      "comment": "VIEW",
+      "columns": [
+        {
+          "name": "category",
+          "type": "varchar(25)",
+          "nullable": false
+        },
+        {
+          "name": "total_sales",
+          "type": "decimal(27,2)",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW sales_by_film_category AS (select `c`.`name` AS `category`,sum(`p`.`amount`) AS `total_sales` from (((((`sakila`.`payment` `p` join `sakila`.`rental` `r` on((`p`.`rental_id` = `r`.`rental_id`))) join `sakila`.`inventory` `i` on((`r`.`inventory_id` = `i`.`inventory_id`))) join `sakila`.`film` `f` on((`i`.`film_id` = `f`.`film_id`))) join `sakila`.`film_category` `fc` on((`f`.`film_id` = `fc`.`film_id`))) join `sakila`.`category` `c` on((`fc`.`category_id` = `c`.`category_id`))) group by `c`.`name` order by `total_sales` desc)",
+      "referenced_tables": [
+        "payment",
+        "rental",
+        "inventory",
+        "film",
+        "film_category",
+        "category"
+      ]
+    },
+    {
+      "name": "sales_by_store",
+      "type": "VIEW",
+      "comment": "VIEW",
+      "columns": [
+        {
+          "name": "store",
+          "type": "varchar(101)",
+          "nullable": true
+        },
+        {
+          "name": "manager",
+          "type": "varchar(91)",
+          "nullable": true
+        },
+        {
+          "name": "total_sales",
+          "type": "decimal(27,2)",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW sales_by_store AS (select concat(`c`.`city`,',',`cy`.`country`) AS `store`,concat(`m`.`first_name`,' ',`m`.`last_name`) AS `manager`,sum(`p`.`amount`) AS `total_sales` from (((((((`sakila`.`payment` `p` join `sakila`.`rental` `r` on((`p`.`rental_id` = `r`.`rental_id`))) join `sakila`.`inventory` `i` on((`r`.`inventory_id` = `i`.`inventory_id`))) join `sakila`.`store` `s` on((`i`.`store_id` = `s`.`store_id`))) join `sakila`.`address` `a` on((`s`.`address_id` = `a`.`address_id`))) join `sakila`.`city` `c` on((`a`.`city_id` = `c`.`city_id`))) join `sakila`.`country` `cy` on((`c`.`country_id` = `cy`.`country_id`))) join `sakila`.`staff` `m` on((`s`.`manager_staff_id` = `m`.`staff_id`))) group by `s`.`store_id` order by `cy`.`country`,`c`.`city`)",
+      "referenced_tables": [
+        "payment",
+        "rental",
+        "inventory",
+        "store",
+        "address",
+        "city",
+        "country",
+        "staff"
+      ]
+    },
+    {
+      "name": "staff",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "staff_id",
+          "type": "tinyint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "first_name",
+          "type": "varchar(45)",
+          "nullable": false
+        },
+        {
+          "name": "last_name",
+          "type": "varchar(45)",
+          "nullable": false
+        },
+        {
+          "name": "address_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "picture",
+          "type": "blob",
+          "nullable": true
+        },
+        {
+          "name": "email",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "store_id",
+          "type": "tinyint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "active",
+          "type": "tinyint(1)",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "username",
+          "type": "varchar(16)",
+          "nullable": false
+        },
+        {
+          "name": "password",
+          "type": "varchar(40)",
+          "nullable": true
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_address_id",
+          "def": "KEY idx_fk_address_id (address_id) USING BTREE",
+          "table": "staff",
+          "columns": [
+            "address_id"
+          ]
+        },
+        {
+          "name": "idx_fk_store_id",
+          "def": "KEY idx_fk_store_id (store_id) USING BTREE",
+          "table": "staff",
+          "columns": [
+            "store_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (staff_id) USING BTREE",
+          "table": "staff",
+          "columns": [
+            "staff_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_staff_address",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (address_id) REFERENCES address (address_id)",
+          "table": "staff",
+          "referenced_table": "address",
+          "columns": [
+            "address_id"
+          ],
+          "referenced_columns": [
+            "address_id"
+          ]
+        },
+        {
+          "name": "fk_staff_store",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (store_id) REFERENCES store (store_id)",
+          "table": "staff",
+          "referenced_table": "store",
+          "columns": [
+            "store_id"
+          ],
+          "referenced_columns": [
+            "store_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (staff_id)",
+          "table": "staff",
+          "columns": [
+            "staff_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `staff` (\n  `staff_id` tinyint unsigned NOT NULL AUTO_INCREMENT,\n  `first_name` varchar(45) NOT NULL,\n  `last_name` varchar(45) NOT NULL,\n  `address_id` smallint unsigned NOT NULL,\n  `picture` blob,\n  `email` varchar(50) DEFAULT NULL,\n  `store_id` tinyint unsigned NOT NULL,\n  `active` tinyint(1) NOT NULL DEFAULT '1',\n  `username` varchar(16) NOT NULL,\n  `password` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`staff_id`),\n  KEY `idx_fk_store_id` (`store_id`),\n  KEY `idx_fk_address_id` (`address_id`),\n  CONSTRAINT `fk_staff_address` FOREIGN KEY (`address_id`) REFERENCES `address` (`address_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_staff_store` FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "staff_list",
+      "type": "VIEW",
+      "comment": "VIEW",
+      "columns": [
+        {
+          "name": "ID",
+          "type": "tinyint unsigned",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "name",
+          "type": "varchar(91)",
+          "nullable": true
+        },
+        {
+          "name": "address",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "zip code",
+          "type": "varchar(10)",
+          "nullable": true
+        },
+        {
+          "name": "phone",
+          "type": "varchar(20)",
+          "nullable": false
+        },
+        {
+          "name": "city",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "country",
+          "type": "varchar(50)",
+          "nullable": false
+        },
+        {
+          "name": "SID",
+          "type": "tinyint unsigned",
+          "nullable": false
+        }
+      ],
+      "def": "CREATE VIEW staff_list AS (select `s`.`staff_id` AS `ID`,concat(`s`.`first_name`,' ',`s`.`last_name`) AS `name`,`a`.`address` AS `address`,`a`.`postal_code` AS `zip code`,`a`.`phone` AS `phone`,`sakila`.`city`.`city` AS `city`,`sakila`.`country`.`country` AS `country`,`s`.`store_id` AS `SID` from (((`sakila`.`staff` `s` join `sakila`.`address` `a` on((`s`.`address_id` = `a`.`address_id`))) join `sakila`.`city` on((`a`.`city_id` = `sakila`.`city`.`city_id`))) join `sakila`.`country` on((`sakila`.`city`.`country_id` = `sakila`.`country`.`country_id`))))",
+      "referenced_tables": [
+        "staff",
+        "address",
+        "city",
+        "country"
+      ]
+    },
+    {
+      "name": "store",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "store_id",
+          "type": "tinyint unsigned",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "manager_staff_id",
+          "type": "tinyint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "address_id",
+          "type": "smallint unsigned",
+          "nullable": false
+        },
+        {
+          "name": "last_update",
+          "type": "timestamp",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "extra_def": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_address_id",
+          "def": "KEY idx_fk_address_id (address_id) USING BTREE",
+          "table": "store",
+          "columns": [
+            "address_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (store_id) USING BTREE",
+          "table": "store",
+          "columns": [
+            "store_id"
+          ]
+        },
+        {
+          "name": "idx_unique_manager",
+          "def": "UNIQUE KEY idx_unique_manager (manager_staff_id) USING BTREE",
+          "table": "store",
+          "columns": [
+            "manager_staff_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "fk_store_address",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (address_id) REFERENCES address (address_id)",
+          "table": "store",
+          "referenced_table": "address",
+          "columns": [
+            "address_id"
+          ],
+          "referenced_columns": [
+            "address_id"
+          ]
+        },
+        {
+          "name": "fk_store_staff",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (manager_staff_id) REFERENCES staff (staff_id)",
+          "table": "store",
+          "referenced_table": "staff",
+          "columns": [
+            "manager_staff_id"
+          ],
+          "referenced_columns": [
+            "staff_id"
+          ]
+        },
+        {
+          "name": "idx_unique_manager",
+          "type": "UNIQUE",
+          "def": "UNIQUE KEY idx_unique_manager (manager_staff_id)",
+          "table": "store",
+          "columns": [
+            "manager_staff_id"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (store_id)",
+          "table": "store",
+          "columns": [
+            "store_id"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `store` (\n  `store_id` tinyint unsigned NOT NULL AUTO_INCREMENT,\n  `manager_staff_id` tinyint unsigned NOT NULL,\n  `address_id` smallint unsigned NOT NULL,\n  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`store_id`),\n  UNIQUE KEY `idx_unique_manager` (`manager_staff_id`),\n  KEY `idx_fk_address_id` (`address_id`),\n  CONSTRAINT `fk_store_address` FOREIGN KEY (`address_id`) REFERENCES `address` (`address_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n  CONSTRAINT `fk_store_staff` FOREIGN KEY (`manager_staff_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
     }
   ],
   "relations": [
     {
-      "table": "city",
+      "table": "address",
       "columns": [
-        "CountryCode"
+        "city_id"
       ],
       "cardinality": "zero_or_more",
-      "parent_table": "country",
+      "parent_table": "city",
       "parent_columns": [
-        "Code"
+        "city_id"
       ],
       "parent_cardinality": "exactly_one",
-      "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)"
+      "def": "FOREIGN KEY (city_id) REFERENCES city (city_id)"
     },
     {
-      "table": "countrylanguage",
+      "table": "city",
       "columns": [
-        "CountryCode"
+        "country_id"
       ],
       "cardinality": "zero_or_more",
       "parent_table": "country",
       "parent_columns": [
-        "Code"
+        "country_id"
       ],
       "parent_cardinality": "exactly_one",
-      "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)"
+      "def": "FOREIGN KEY (country_id) REFERENCES country (country_id)"
+    },
+    {
+      "table": "customer",
+      "columns": [
+        "address_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "address",
+      "parent_columns": [
+        "address_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (address_id) REFERENCES address (address_id)"
+    },
+    {
+      "table": "customer",
+      "columns": [
+        "store_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "store",
+      "parent_columns": [
+        "store_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (store_id) REFERENCES store (store_id)"
+    },
+    {
+      "table": "film",
+      "columns": [
+        "language_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "language",
+      "parent_columns": [
+        "language_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (language_id) REFERENCES language (language_id)"
+    },
+    {
+      "table": "film",
+      "columns": [
+        "original_language_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "language",
+      "parent_columns": [
+        "language_id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (original_language_id) REFERENCES language (language_id)"
+    },
+    {
+      "table": "film_actor",
+      "columns": [
+        "actor_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "actor",
+      "parent_columns": [
+        "actor_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (actor_id) REFERENCES actor (actor_id)"
+    },
+    {
+      "table": "film_actor",
+      "columns": [
+        "film_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "film",
+      "parent_columns": [
+        "film_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (film_id) REFERENCES film (film_id)"
+    },
+    {
+      "table": "film_category",
+      "columns": [
+        "category_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "category",
+      "parent_columns": [
+        "category_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (category_id) REFERENCES category (category_id)"
+    },
+    {
+      "table": "film_category",
+      "columns": [
+        "film_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "film",
+      "parent_columns": [
+        "film_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (film_id) REFERENCES film (film_id)"
+    },
+    {
+      "table": "inventory",
+      "columns": [
+        "film_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "film",
+      "parent_columns": [
+        "film_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (film_id) REFERENCES film (film_id)"
+    },
+    {
+      "table": "inventory",
+      "columns": [
+        "store_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "store",
+      "parent_columns": [
+        "store_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (store_id) REFERENCES store (store_id)"
+    },
+    {
+      "table": "payment",
+      "columns": [
+        "customer_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "customer",
+      "parent_columns": [
+        "customer_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (customer_id) REFERENCES customer (customer_id)"
+    },
+    {
+      "table": "payment",
+      "columns": [
+        "rental_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "rental",
+      "parent_columns": [
+        "rental_id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (rental_id) REFERENCES rental (rental_id)"
+    },
+    {
+      "table": "payment",
+      "columns": [
+        "staff_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "staff",
+      "parent_columns": [
+        "staff_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (staff_id) REFERENCES staff (staff_id)"
+    },
+    {
+      "table": "rental",
+      "columns": [
+        "customer_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "customer",
+      "parent_columns": [
+        "customer_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (customer_id) REFERENCES customer (customer_id)"
+    },
+    {
+      "table": "rental",
+      "columns": [
+        "inventory_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "inventory",
+      "parent_columns": [
+        "inventory_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (inventory_id) REFERENCES inventory (inventory_id)"
+    },
+    {
+      "table": "rental",
+      "columns": [
+        "staff_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "staff",
+      "parent_columns": [
+        "staff_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (staff_id) REFERENCES staff (staff_id)"
+    },
+    {
+      "table": "staff",
+      "columns": [
+        "address_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "address",
+      "parent_columns": [
+        "address_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (address_id) REFERENCES address (address_id)"
+    },
+    {
+      "table": "staff",
+      "columns": [
+        "store_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "store",
+      "parent_columns": [
+        "store_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (store_id) REFERENCES store (store_id)"
+    },
+    {
+      "table": "store",
+      "columns": [
+        "address_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "address",
+      "parent_columns": [
+        "address_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (address_id) REFERENCES address (address_id)"
+    },
+    {
+      "table": "store",
+      "columns": [
+        "manager_staff_id"
+      ],
+      "cardinality": "zero_or_one",
+      "parent_table": "staff",
+      "parent_columns": [
+        "staff_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (manager_staff_id) REFERENCES staff (staff_id)"
+    }
+  ],
+  "functions": [
+    {
+      "name": "film_in_stock",
+      "return_type": "",
+      "arguments": "p_film_id int; p_store_id int; p_film_count int",
+      "type": "PROCEDURE"
+    },
+    {
+      "name": "film_not_in_stock",
+      "return_type": "",
+      "arguments": "p_film_id int; p_store_id int; p_film_count int",
+      "type": "PROCEDURE"
+    },
+    {
+      "name": "get_customer_balance",
+      "return_type": "decimal",
+      "arguments": "p_customer_id int; p_effective_date datetime",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "inventory_held_by_customer",
+      "return_type": "int",
+      "arguments": "p_inventory_id int",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "inventory_in_stock",
+      "return_type": "tinyint",
+      "arguments": "p_inventory_id int",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "rewards_report",
+      "return_type": "",
+      "arguments": "min_monthly_purchases tinyint; min_dollar_amount_purchased decimal; count_rewardees int",
+      "type": "PROCEDURE"
     }
   ],
   "driver": {
