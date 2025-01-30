@@ -1,0 +1,308 @@
+{
+  "name": "world",
+  "tables": [
+    {
+      "name": "city",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "ID",
+          "type": "int",
+          "nullable": false,
+          "extra_def": "auto_increment"
+        },
+        {
+          "name": "Name",
+          "type": "char(35)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "CountryCode",
+          "type": "char(3)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "District",
+          "type": "char(20)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "Population",
+          "type": "int",
+          "nullable": false,
+          "default": "0"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "CountryCode",
+          "def": "KEY CountryCode (CountryCode) USING BTREE",
+          "table": "city",
+          "columns": [
+            "CountryCode"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (ID) USING BTREE",
+          "table": "city",
+          "columns": [
+            "ID"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "city_ibfk_1",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)",
+          "table": "city",
+          "referenced_table": "country",
+          "columns": [
+            "CountryCode"
+          ],
+          "referenced_columns": [
+            "Code"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (ID)",
+          "table": "city",
+          "columns": [
+            "ID"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `city` (\n  `ID` int NOT NULL AUTO_INCREMENT,\n  `Name` char(35) NOT NULL DEFAULT '',\n  `CountryCode` char(3) NOT NULL DEFAULT '',\n  `District` char(20) NOT NULL DEFAULT '',\n  `Population` int NOT NULL DEFAULT '0',\n  PRIMARY KEY (`ID`),\n  KEY `CountryCode` (`CountryCode`),\n  CONSTRAINT `city_ibfk_1` FOREIGN KEY (`CountryCode`) REFERENCES `country` (`Code`)\n) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "country",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "Code",
+          "type": "char(3)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "Name",
+          "type": "char(52)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "Continent",
+          "type": "enum('Asia','Europe','North America','Africa','Oceania','Antarctica','South America')",
+          "nullable": false,
+          "default": "Asia"
+        },
+        {
+          "name": "Region",
+          "type": "char(26)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "SurfaceArea",
+          "type": "decimal(10,2)",
+          "nullable": false,
+          "default": "0.00"
+        },
+        {
+          "name": "IndepYear",
+          "type": "smallint",
+          "nullable": true
+        },
+        {
+          "name": "Population",
+          "type": "int",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "LifeExpectancy",
+          "type": "decimal(3,1)",
+          "nullable": true
+        },
+        {
+          "name": "GNP",
+          "type": "decimal(10,2)",
+          "nullable": true
+        },
+        {
+          "name": "GNPOld",
+          "type": "decimal(10,2)",
+          "nullable": true
+        },
+        {
+          "name": "LocalName",
+          "type": "char(45)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "GovernmentForm",
+          "type": "char(45)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "HeadOfState",
+          "type": "char(60)",
+          "nullable": true
+        },
+        {
+          "name": "Capital",
+          "type": "int",
+          "nullable": true
+        },
+        {
+          "name": "Code2",
+          "type": "char(2)",
+          "nullable": false,
+          "default": ""
+        }
+      ],
+      "indexes": [
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (Code) USING BTREE",
+          "table": "country",
+          "columns": [
+            "Code"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (Code)",
+          "table": "country",
+          "columns": [
+            "Code"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `country` (\n  `Code` char(3) NOT NULL DEFAULT '',\n  `Name` char(52) NOT NULL DEFAULT '',\n  `Continent` enum('Asia','Europe','North America','Africa','Oceania','Antarctica','South America') NOT NULL DEFAULT 'Asia',\n  `Region` char(26) NOT NULL DEFAULT '',\n  `SurfaceArea` decimal(10,2) NOT NULL DEFAULT '0.00',\n  `IndepYear` smallint DEFAULT NULL,\n  `Population` int NOT NULL DEFAULT '0',\n  `LifeExpectancy` decimal(3,1) DEFAULT NULL,\n  `GNP` decimal(10,2) DEFAULT NULL,\n  `GNPOld` decimal(10,2) DEFAULT NULL,\n  `LocalName` char(45) NOT NULL DEFAULT '',\n  `GovernmentForm` char(45) NOT NULL DEFAULT '',\n  `HeadOfState` char(60) DEFAULT NULL,\n  `Capital` int DEFAULT NULL,\n  `Code2` char(2) NOT NULL DEFAULT '',\n  PRIMARY KEY (`Code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "countrylanguage",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "CountryCode",
+          "type": "char(3)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "Language",
+          "type": "char(30)",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "IsOfficial",
+          "type": "enum('T','F')",
+          "nullable": false,
+          "default": "F"
+        },
+        {
+          "name": "Percentage",
+          "type": "decimal(4,1)",
+          "nullable": false,
+          "default": "0.0"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "CountryCode",
+          "def": "KEY CountryCode (CountryCode) USING BTREE",
+          "table": "countrylanguage",
+          "columns": [
+            "CountryCode"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "def": "PRIMARY KEY (CountryCode, Language) USING BTREE",
+          "table": "countrylanguage",
+          "columns": [
+            "CountryCode",
+            "Language"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "countryLanguage_ibfk_1",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)",
+          "table": "countrylanguage",
+          "referenced_table": "country",
+          "columns": [
+            "CountryCode"
+          ],
+          "referenced_columns": [
+            "Code"
+          ]
+        },
+        {
+          "name": "PRIMARY",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (CountryCode, Language)",
+          "table": "countrylanguage",
+          "columns": [
+            "CountryCode",
+            "Language"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE `countrylanguage` (\n  `CountryCode` char(3) NOT NULL DEFAULT '',\n  `Language` char(30) NOT NULL DEFAULT '',\n  `IsOfficial` enum('T','F') NOT NULL DEFAULT 'F',\n  `Percentage` decimal(4,1) NOT NULL DEFAULT '0.0',\n  PRIMARY KEY (`CountryCode`,`Language`),\n  KEY `CountryCode` (`CountryCode`),\n  CONSTRAINT `countryLanguage_ibfk_1` FOREIGN KEY (`CountryCode`) REFERENCES `country` (`Code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+    }
+  ],
+  "relations": [
+    {
+      "table": "city",
+      "columns": [
+        "CountryCode"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "country",
+      "parent_columns": [
+        "Code"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)"
+    },
+    {
+      "table": "countrylanguage",
+      "columns": [
+        "CountryCode"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "country",
+      "parent_columns": [
+        "Code"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (CountryCode) REFERENCES country (Code)"
+    }
+  ],
+  "driver": {
+    "name": "mysql",
+    "database_version": "8.0.41",
+    "meta": {
+      "dict": {
+        "Functions": "Stored procedures and functions"
+      }
+    }
+  }
+}
